@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi_Zaff System · Schema Collegamenti</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Exo+2:wght@300;600;800&display=swap');
+
+  :root{
+    --bg:     #0a0e14;
+    --card:   #111620;
+    --border: #1e2d40;
+    --accent: #00d4ff;
+    --green:  #00ff9d;
+    --warn:   #ffaa00;
+    --red:    #ff4455;
+    --purple: #b388ff;
+    --pink:   #ff6ec7;
+    --text:   #c8d8e8;
+    --dim:    #5a7080;
+
+    --wire-vcc: #ff4455;      /* rosso = +V */
+    --wire-gnd: #888;         /* grigio = GND */
+    --wire-3v3: #ffaa00;      /* arancio = 3.3V */
+    --wire-tx:  #00ff9d;      /* verde = TX/dati uscita */
+    --wire-rx:  #00d4ff;      /* azzurro = RX/dati ingresso */
+    --wire-adc: #b388ff;      /* viola = ADC batteria */
+    --wire-bat: #ff6ec7;      /* rosa = linea batteria */
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    background:
+      radial-gradient(ellipse at top, #0d1a2e 0%, var(--bg) 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Exo 2', sans-serif;
+    min-height:100vh;
+    padding:0 0 60px;
+  }
+
+  /* HEADER */
+  header{
+    background:linear-gradient(135deg,#060c14 0%,#0d1a2e 100%);
+    border-bottom:1px solid var(--border);
+    padding:22px 28px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(
+      90deg, transparent, transparent 60px,
+      rgba(0,212,255,.03) 60px, rgba(0,212,255,.03) 61px
+    );
+  }
+  .logo-row{
+    max-width:1100px; margin:0 auto;
+    display:flex; align-items:center; gap:14px;
+    position:relative;
+  }
+  .logo-icon{
+    width:44px; height:44px;
+    border:2px solid var(--accent);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    box-shadow:0 0 18px rgba(0,212,255,.35);
+  }
+  h1{
+    font-size:1.4rem; font-weight:800; letter-spacing:.02em;
+    color:#fff; line-height:1.1;
+  }
+  h1 span{ color:var(--accent); }
+  .subtitle{
+    font-size:.7rem; color:var(--dim);
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.14em; margin-top:3px;
+  }
+  .badge{
+    margin-left:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.7rem;
+    color:var(--accent);
+    border:1px solid var(--border);
+    padding:5px 12px;
+    border-radius:20px;
+  }
+
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px 18px 0;
+    display:grid; gap:20px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 24px;
+    position:relative;
+  }
+  .card::before{
+    content:'';
+    position:absolute; top:0; left:24px; right:24px; height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    opacity:.3;
+  }
+  .card-title{
+    font-size:.7rem;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.18em;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:18px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title::after{
+    content:''; flex:1; height:1px; background:var(--border);
+  }
+
+  /* ─── LEGENDA ─── */
+  .legend{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:10px;
+  }
+  .legend-item{
+    display:flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;
+    padding:8px 12px;
+    background:#0d1520;
+    border:1px solid var(--border);
+    border-radius:8px;
+  }
+  .legend-swatch{
+    width:24px; height:4px; border-radius:2px;
+    flex-shrink:0;
+  }
+
+  /* ─── SCHEMA SVG WRAPPER ─── */
+  .schema-wrap{
+    overflow-x:auto;
+    background:
+      radial-gradient(circle at 30% 50%, rgba(0,212,255,.06), transparent 50%),
+      radial-gradient(circle at 70% 50%, rgba(0,255,157,.04), transparent 50%),
+      #07090d;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:30px 20px;
+    position:relative;
+  }
+  .schema-wrap::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px);
+    background-size:20px 20px;
+    pointer-events:none;
+    border-radius:12px;
+  }
+  svg{
+    display:block;
+    margin:0 auto;
+    min-width:980px;
+    max-width:100%;
+    height:auto;
+    position:relative;
+  }
+
+  /* ─── TABELLA PIN ─── */
+  .pin-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.82rem;
+  }
+  .pin-table th{
+    text-align:left;
+    padding:10px 12px;
+    background:#0d1520;
+    color:var(--accent);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    border-bottom:1px solid var(--border);
+  }
+  .pin-table td{
+    padding:11px 12px;
+    border-bottom:1px solid var(--border);
+  }
+  .pin-table tr:last-child td{ border-bottom:none; }
+  .pin-table tr:hover td{ background:rgba(0,212,255,.04); }
+  .pin-pill{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:5px;
+    font-size:.72rem;
+    font-weight:700;
+    background:#0d1520;
+    border:1px solid var(--border);
+  }
+  .pin-pill.power{ color:var(--red); border-color:var(--red); }
+  .pin-pill.gnd{ color:#888; border-color:#666; }
+  .pin-pill.v3{ color:var(--warn); border-color:var(--warn); }
+  .pin-pill.tx{ color:var(--green); border-color:var(--green); }
+  .pin-pill.rx{ color:var(--accent); border-color:var(--accent); }
+  .pin-pill.adc{ color:var(--purple); border-color:var(--purple); }
+
+  /* ─── WARNING BOX ─── */
+  .warning{
+    background:linear-gradient(135deg, rgba(255,68,85,.08), rgba(255,170,0,.05));
+    border:1px solid rgba(255,68,85,.3);
+    border-left:4px solid var(--red);
+    border-radius:8px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-size:.88rem;
+  }
+  .warning strong{ color:var(--red); }
+  .info{
+    background:rgba(0,212,255,.04);
+    border:1px solid rgba(0,212,255,.2);
+    border-left:4px solid var(--accent);
+    border-radius:8px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-size:.88rem;
+  }
+  .info strong{ color:var(--accent); }
+
+  /* ─── FOOTER ─── */
+  footer{
+    text-align:center;
+    margin-top:30px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.7rem;
+    color:var(--border);
+    letter-spacing:.18em;
+  }
+  footer span{ color:var(--accent); }
+
+  /* ─── stili SVG ─── */
+  .module {
+    fill: #0d1520;
+    stroke: var(--border);
+    stroke-width: 1.5;
+  }
+  .module-esp { stroke: var(--accent); }
+  .module-max { stroke: var(--green); }
+  .module-tp  { stroke: var(--warn); }
+  .module-bat { stroke: var(--pink); }
+
+  .module-label {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    fill: #fff;
+  }
+  .module-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    fill: var(--dim);
+    letter-spacing: 1px;
+  }
+  .pin-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    fill: var(--text);
+  }
+  .pin-dot { fill: #fff; stroke: #000; stroke-width: 1; }
+
+  .wire { fill: none; stroke-width: 2.5; stroke-linecap: round; }
+  .wire-vcc { stroke: var(--wire-vcc); }
+  .wire-gnd { stroke: var(--wire-gnd); }
+  .wire-3v3 { stroke: var(--wire-3v3); }
+  .wire-tx  { stroke: var(--wire-tx); }
+  .wire-rx  { stroke: var(--wire-rx); }
+  .wire-adc { stroke: var(--wire-adc); }
+  .wire-bat { stroke: var(--wire-bat); }
+
+  .wire-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    fill: var(--text);
+  }
+
+  .resistor { fill: #f4d35e; stroke: #000; stroke-width: 1; }
+  .resistor-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    fill: #000;
+  }
+  .resistor-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    fill: var(--text);
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <h1><span>Pi_Zaff</span> System</h1>
+      <div class="subtitle">SCHEMA COLLEGAMENTI · WIRELESS CONSOLE SERVER</div>
+    </div>
+    <div class="badge">v2.2</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─── LEGENDA ─── -->
+  <div class="card">
+    <div class="card-title">legenda fili</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-vcc)"></div>+5V / VIN</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-3v3)"></div>+3.3V</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-gnd)"></div>GND</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-tx)"></div>TX (dati uscita)</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-rx)"></div>RX (dati ingresso)</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-adc)"></div>ADC batteria</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-bat)"></div>Linea batteria</div>
+    </div>
+  </div>
+
+  <!-- ─── SCHEMA PRINCIPALE ─── -->
+  <div class="card">
+    <div class="card-title">schema collegamenti</div>
+    <div class="schema-wrap">
+
+      <svg viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ============================================== -->
+        <!-- MODULO BATTERIA 18650                          -->
+        <!-- ============================================== -->
+        <g>
+          <!-- corpo cella -->
+          <rect x="30" y="60" width="120" height="50" rx="6" class="module module-bat"/>
+          <rect x="146" y="76" width="6" height="18" fill="#ff6ec7"/>
+          <text x="90" y="82" text-anchor="middle" class="module-label" fill="#ff6ec7">18650</text>
+          <text x="90" y="98" text-anchor="middle" class="module-sub">2600 mAh · 3.7V</text>
+
+          <!-- pin + e - -->
+          <text x="160" y="72" class="pin-label" fill="#ff4455" font-weight="700">+</text>
+          <text x="160" y="105" class="pin-label" fill="#888" font-weight="700">−</text>
+
+          <!-- connettore JST -->
+          <rect x="155" y="73" width="14" height="24" fill="#1a2535" stroke="#444"/>
+          <text x="162" y="125" text-anchor="middle" class="module-sub">JST PH2.0</text>
+
+          <!-- punti di uscita -->
+          <circle cx="172" cy="78" r="3" class="pin-dot" fill="#ff4455"/>
+          <circle cx="172" cy="92" r="3" class="pin-dot" fill="#888"/>
+        </g>
+
+        <!-- ============================================== -->
+        <!-- MODULO TP4056H                                 -->
+        <!-- ============================================== -->
+        <g>
+          <rect x="240" y="40" width="180" height="120" rx="8" class="module module-tp"/>
+          <text x="330" y="62" text-anchor="middle" class="module-label" fill="#ffaa00">TP4056H</text>
+          <text x="330" y="76" text-anchor="middle" class="module-sub">CARICA · PROTEZIONE</text>
+
+          <!-- IN (USB) -->
+          <rect x="246" y="86" width="40" height="22" rx="2" fill="#1a2535" stroke="#444"/>
+          <text x="266" y="100" text-anchor="middle" class="pin-label" font-size="8">USB-C IN</text>
+
+          <!-- BAT+ -->
+          <text x="250" y="125" class="pin-label">BAT+</text>
+          <circle cx="244" cy="122" r="3" class="pin-dot" fill="#ff4455"/>
+
+          <!-- BAT- -->
+          <text x="250" y="145" class="pin-label">BAT−</text>
+          <circle cx="244" cy="142" r="3" class="pin-dot" fill="#888"/>
+
+          <!-- OUT+ -->
+          <text x="400" y="125" text-anchor="end" class="pin-label">OUT+</text>
+          <circle cx="416" cy="122" r="3" class="pin-dot" fill="#ff4455"/>
+
+          <!-- OUT- -->
+          <text x="400" y="145" text-anchor="end" class="pin-label">OUT−</text>
+          <circle cx="416" cy="142" r="3" class="pin-dot" fill="#888"/>
+        </g>
+
+        <!-- ============================================== -->
+        <!-- PARTITORE BATTERIA                             -->
+        <!-- ============================================== -->
+        <g>
+          <!-- linea principale che scende da BAT+ -->
+          <text x="100" y="195" class="resistor-label" fill="var(--purple)">Partitore lettura batteria</text>
+
+          <!-- Resistenza R1 -->
+          <rect x="65" y="220" width="50" height="14" rx="2" class="resistor"/>
+          <text x="90" y="231" text-anchor="middle" class="resistor-text">R1 100kΩ</text>
+
+          <!-- nodo centrale -->
+          <circle cx="90" cy="265" r="4" fill="#b388ff" stroke="#000"/>
+
+          <!-- Resistenza R2 -->
+          <rect x="65" y="285" width="50" height="14" rx="2" class="resistor"/>
+          <text x="90" y="296" text-anchor="middle" class="resistor-text">R2 100kΩ</text>
+        </g>
+
+        <!-- ============================================== -->
+        <!-- ESP32 DEV BOARD                                -->
+        <!-- ============================================== -->
+        <g>
+          <rect x="430" y="200" width="200" height="320" rx="10" class="module module-esp"/>
+          <text x="530" y="225" text-anchor="middle" class="module-label" fill="#00d4ff">ESP32</text>
+          <text x="530" y="240" text-anchor="middle" class="module-sub">DEVKIT V1 · 30 PIN</text>
+
+          <!-- USB micro -->
+          <rect x="510" y="246" width="40" height="14" rx="2" fill="#333"/>
+          <text x="530" y="256" text-anchor="middle" class="module-sub">USB</text>
+
+          <!-- PIN SINISTRA -->
+          <!-- VIN -->
+          <circle cx="430" cy="285" r="4" class="pin-dot" fill="#ff4455"/>
+          <text x="440" y="289" class="pin-label">VIN (5V)</text>
+
+          <!-- GND -->
+          <circle cx="430" cy="310" r="4" class="pin-dot" fill="#888"/>
+          <text x="440" y="314" class="pin-label">GND</text>
+
+          <!-- 3.3V -->
+          <circle cx="430" cy="335" r="4" class="pin-dot" fill="#ffaa00"/>
+          <text x="440" y="339" class="pin-label">3.3V</text>
+
+          <!-- GPIO34 -->
+          <circle cx="430" cy="380" r="4" class="pin-dot" fill="#b388ff"/>
+          <text x="440" y="384" class="pin-label">GPIO34 (ADC)</text>
+
+          <!-- GPIO16 -->
+          <circle cx="430" cy="440" r="4" class="pin-dot" fill="#00d4ff"/>
+          <text x="440" y="444" class="pin-label">GPIO16 (RX2)</text>
+
+          <!-- GPIO17 -->
+          <circle cx="430" cy="465" r="4" class="pin-dot" fill="#00ff9d"/>
+          <text x="440" y="469" class="pin-label">GPIO17 (TX2)</text>
+
+          <!-- GND2 -->
+          <circle cx="430" cy="495" r="4" class="pin-dot" fill="#888"/>
+          <text x="440" y="499" class="pin-label">GND</text>
+
+          <!-- decorazione antenna -->
+          <rect x="490" y="270" width="80" height="30" rx="2" fill="#1a2535" stroke="#333"/>
+          <text x="530" y="290" text-anchor="middle" class="module-sub" font-size="8">WiFi + BT</text>
+
+          <!-- chip ESP32 -->
+          <rect x="490" y="320" width="80" height="80" rx="4" fill="#1a2535" stroke="#333"/>
+          <text x="530" y="358" text-anchor="middle" class="module-sub" font-size="9">ESP32-WROOM</text>
+          <text x="530" y="372" text-anchor="middle" class="module-sub" font-size="7">240 MHz</text>
+        </g>
+
+        <!-- ============================================== -->
+        <!-- MAX3232                                        -->
+        <!-- ============================================== -->
+        <g>
+          <rect x="730" y="280" width="200" height="200" rx="8" class="module module-max"/>
+          <text x="830" y="305" text-anchor="middle" class="module-label" fill="#00ff9d">MAX3232</text>
+          <text x="830" y="320" text-anchor="middle" class="module-sub">RS232 ↔ TTL 3.3V</text>
+
+          <!-- PIN SINISTRA (lato TTL) -->
+          <!-- VCC -->
+          <circle cx="730" cy="345" r="4" class="pin-dot" fill="#ffaa00"/>
+          <text x="740" y="349" class="pin-label">VCC (3.3V)</text>
+
+          <!-- GND -->
+          <circle cx="730" cy="370" r="4" class="pin-dot" fill="#888"/>
+          <text x="740" y="374" class="pin-label">GND</text>
+
+          <!-- TXD (uscita verso ESP) -->
+          <circle cx="730" cy="400" r="4" class="pin-dot" fill="#00d4ff"/>
+          <text x="740" y="404" class="pin-label">TXD → ESP RX</text>
+
+          <!-- RXD (ingresso da ESP) -->
+          <circle cx="730" cy="425" r="4" class="pin-dot" fill="#00ff9d"/>
+          <text x="740" y="429" class="pin-label">RXD ← ESP TX</text>
+
+          <!-- PIN DESTRA (lato RS232) -->
+          <text x="920" y="349" text-anchor="end" class="pin-label">T1OUT</text>
+          <circle cx="930" cy="345" r="4" class="pin-dot" fill="#00ff9d"/>
+
+          <text x="920" y="374" text-anchor="end" class="pin-label">R1IN</text>
+          <circle cx="930" cy="370" r="4" class="pin-dot" fill="#00d4ff"/>
+
+          <text x="920" y="404" text-anchor="end" class="pin-label">GND</text>
+          <circle cx="930" cy="400" r="4" class="pin-dot" fill="#888"/>
+
+          <!-- chip -->
+          <rect x="800" y="430" width="60" height="35" rx="2" fill="#1a2535" stroke="#333"/>
+          <text x="830" y="453" text-anchor="middle" class="module-sub" font-size="8">MAX3232</text>
+        </g>
+
+        <!-- ============================================== -->
+        <!-- CONNETTORE ROUTER (DB9/RJ45)                   -->
+        <!-- ============================================== -->
+        <g>
+          <rect x="750" y="520" width="160" height="80" rx="6" fill="#0d1520" stroke="#5a7080" stroke-width="1.5"/>
+          <text x="830" y="545" text-anchor="middle" class="module-label" fill="#c8d8e8" font-size="13">ROUTER / SWITCH</text>
+          <text x="830" y="560" text-anchor="middle" class="module-sub">CISCO · MIKROTIK · HP</text>
+
+          <!-- pin RX router -->
+          <circle cx="770" cy="580" r="3" class="pin-dot" fill="#00ff9d"/>
+          <text x="778" y="584" class="pin-label" font-size="9">RX</text>
+
+          <!-- pin TX router -->
+          <circle cx="830" cy="580" r="3" class="pin-dot" fill="#00d4ff"/>
+          <text x="838" y="584" class="pin-label" font-size="9">TX</text>
+
+          <!-- pin GND router -->
+          <circle cx="890" cy="580" r="3" class="pin-dot" fill="#888"/>
+          <text x="898" y="584" class="pin-label" font-size="9">GND</text>
+        </g>
+
+        <!-- ============================================== -->
+        <!-- ============== FILI / WIRES ================= -->
+        <!-- ============================================== -->
+
+        <!-- BAT+ → TP4056 BAT+ (rosa) -->
+        <path d="M 172 78 L 200 78 L 200 122 L 244 122" class="wire wire-bat"/>
+        <text x="180" y="73" class="wire-label" fill="#ff6ec7">BAT+</text>
+
+        <!-- BAT- → TP4056 BAT- (grigio) -->
+        <path d="M 172 92 L 190 92 L 190 142 L 244 142" class="wire wire-gnd"/>
+        <text x="180" y="105" class="wire-label" fill="#888">BAT−</text>
+
+        <!-- BAT+ → R1 (linea che scende verso partitore, rosa) -->
+        <path d="M 200 122 L 200 215 L 90 215 L 90 220" class="wire wire-bat" stroke-dasharray="0"/>
+
+        <!-- R1 → nodo centrale (viola, è la tensione divisa) -->
+        <line x1="90" y1="234" x2="90" y2="265" class="wire wire-adc"/>
+
+        <!-- nodo centrale → GPIO34 ESP (viola) -->
+        <path d="M 90 265 L 280 265 L 280 380 L 430 380" class="wire wire-adc"/>
+        <text x="280" y="258" class="wire-label" fill="#b388ff">ADC (V/2)</text>
+
+        <!-- R2 → GND -->
+        <line x1="90" y1="285" x2="90" y2="265" class="wire wire-adc"/>
+        <path d="M 90 299 L 90 340 L 260 340 L 260 310 L 430 310" class="wire wire-gnd"/>
+
+        <!-- TP4056 OUT+ → ESP VIN (rosso 5V) -->
+        <path d="M 416 122 L 420 122 L 420 285 L 430 285" class="wire wire-vcc"/>
+        <text x="421" y="200" class="wire-label" fill="#ff4455" transform="rotate(-90 421 200)">+5V</text>
+
+        <!-- TP4056 OUT- → ESP GND (verso secondo GND in basso) -->
+        <path d="M 416 142 L 425 142 L 425 495 L 430 495" class="wire wire-gnd"/>
+        <text x="426" y="320" class="wire-label" fill="#888" transform="rotate(-90 426 320)">GND</text>
+
+        <!-- ESP 3.3V → MAX3232 VCC (arancio) -->
+        <path d="M 430 335 L 700 335 L 700 345 L 730 345" class="wire wire-3v3"/>
+        <text x="560" y="330" class="wire-label" fill="#ffaa00">+3.3V → MAX VCC</text>
+
+        <!-- ESP GND (310) → MAX3232 GND - serve un GND comune -->
+        <path d="M 660 310 L 680 310 L 680 370 L 730 370" class="wire wire-gnd"/>
+        <line x1="430" y1="310" x2="660" y2="310" class="wire wire-gnd"/>
+        <text x="555" y="305" class="wire-label" fill="#888">GND comune</text>
+
+        <!-- MAX3232 TXD → ESP GPIO16 RX (azzurro - dati che arrivano all'ESP) -->
+        <path d="M 730 400 L 700 400 L 700 440 L 430 440" class="wire wire-rx"/>
+        <text x="555" y="435" class="wire-label" fill="#00d4ff">MAX TXD → ESP RX2 (GPIO16)</text>
+
+        <!-- ESP GPIO17 TX → MAX3232 RXD (verde) -->
+        <path d="M 430 465 L 690 465 L 690 425 L 730 425" class="wire wire-tx"/>
+        <text x="555" y="460" class="wire-label" fill="#00ff9d">ESP TX2 (GPIO17) → MAX RXD</text>
+
+        <!-- MAX3232 T1OUT → Router RX (verde) - i fili si incrociano! -->
+        <path d="M 930 345 L 960 345 L 960 510 L 770 510 L 770 577" class="wire wire-tx"/>
+        <text x="850" y="505" class="wire-label" fill="#00ff9d">TX → Router RX</text>
+
+        <!-- MAX3232 R1IN ← Router TX (azzurro) -->
+        <path d="M 930 370 L 945 370 L 945 495 L 830 495 L 830 577" class="wire wire-rx"/>
+        <text x="850" y="490" class="wire-label" fill="#00d4ff">RX ← Router TX</text>
+
+        <!-- MAX3232 GND → Router GND (grigio) -->
+        <path d="M 930 400 L 935 400 L 935 478 L 890 478 L 890 577" class="wire wire-gnd"/>
+
+        <!-- NOTA: incrocio TX/RX (etichetta vicino al router) -->
+        <text x="830" y="615" text-anchor="middle" class="wire-label" fill="#ffaa00">
+          ⚠ INCROCIO: TX di un lato → RX dell'altro
+        </text>
+
+      </svg>
+
+    </div>
+
+    <div class="info">
+      <strong>📌 GND comune:</strong> tutti i GND (batteria, TP4056, ESP32, MAX3232, partitore, router) devono essere collegati insieme. Senza massa comune i segnali non funzionano.
+    </div>
+
+    <div class="warning">
+      <strong>⚠ ATTENZIONE MAX3232:</strong> il chip si chiama <strong>MAX<u>3232</u></strong> (con il 3) e va alimentato a <strong>3.3V</strong>.
+      Esiste un chip simile chiamato MAX232 (senza il 3) che invece vuole 5V — se lo confondi e dai 5V al MAX3232 lo bruci.
+      Verifica la sigla sul package prima di alimentarlo.
+    </div>
+  </div>
+
+  <!-- ─── TABELLA RIASSUNTIVA PIN ─── -->
+  <div class="card">
+    <div class="card-title">tabella pin ESP32</div>
+    <table class="pin-table">
+      <thead>
+        <tr>
+          <th>Pin ESP32</th>
+          <th>Tipo</th>
+          <th>Collegato a</th>
+          <th>Funzione</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pin-pill power">VIN</span></td>
+          <td>5V IN</td>
+          <td>TP4056 OUT+</td>
+          <td>Alimentazione regolata</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill gnd">GND</span></td>
+          <td>Massa</td>
+          <td>TP4056 OUT− / Partitore R2 / MAX3232 GND / Router GND</td>
+          <td>Massa comune</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill v3">3.3V</span></td>
+          <td>3.3V OUT</td>
+          <td>MAX3232 VCC</td>
+          <td>Alimenta MAX3232</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill adc">GPIO34</span></td>
+          <td>ADC input-only</td>
+          <td>Centro partitore R1-R2</td>
+          <td>Lettura voltaggio batteria</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill rx">GPIO16</span></td>
+          <td>RX2 / UART2</td>
+          <td>MAX3232 TXD</td>
+          <td>Riceve dati seriali dal router</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill tx">GPIO17</span></td>
+          <td>TX2 / UART2</td>
+          <td>MAX3232 RXD</td>
+          <td>Invia dati seriali al router</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── COLLEGAMENTI BATTERIA/CARICA ─── -->
+  <div class="card">
+    <div class="card-title">batteria · carica · alimentazione</div>
+    <table class="pin-table">
+      <thead>
+        <tr><th>Da</th><th>A</th><th>Tipo filo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Batteria 18650 + (filo rosso JST)</td>
+          <td>TP4056 <span class="pin-pill power">BAT+</span></td>
+          <td>Linea batteria</td>
+        </tr>
+        <tr>
+          <td>Batteria 18650 − (filo nero JST)</td>
+          <td>TP4056 <span class="pin-pill gnd">BAT−</span></td>
+          <td>Massa</td>
+        </tr>
+        <tr>
+          <td>TP4056 <span class="pin-pill power">BAT+</span></td>
+          <td>Partitore R1 (terminale alto)</td>
+          <td>Lettura batteria</td>
+        </tr>
+        <tr>
+          <td>TP4056 <span class="pin-pill power">OUT+</span></td>
+          <td>ESP32 <span class="pin-pill power">VIN</span></td>
+          <td>+5V regolato</td>
+        </tr>
+        <tr>
+          <td>TP4056 <span class="pin-pill gnd">OUT−</span></td>
+          <td>ESP32 <span class="pin-pill gnd">GND</span></td>
+          <td>Massa</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>💡 Switch ON/OFF opzionale:</strong> mettilo in serie sul filo tra TP4056 OUT+ e ESP32 VIN.
+      Così quando lo spegni stacchi solo l'ESP32, ma il TP4056 può continuare a caricare la batteria via USB.
+    </div>
+  </div>
+
+  <!-- ─── ROUTER ─── -->
+  <div class="card">
+    <div class="card-title">connessione router · RJ45 console</div>
+    <table class="pin-table">
+      <thead>
+        <tr><th>Lato MAX3232</th><th>Lato Router (RJ45)</th><th>Pin RJ45</th><th>Colore filo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pin-pill tx">T1OUT</span> (TX RS232)</td>
+          <td>RX del router</td>
+          <td>Pin 6</td>
+          <td>Verde</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill rx">R1IN</span> (RX RS232)</td>
+          <td>TX del router</td>
+          <td>Pin 3</td>
+          <td>Verde-bianco</td>
+        </tr>
+        <tr>
+          <td><span class="pin-pill gnd">GND</span></td>
+          <td>GND</td>
+          <td>Pin 4 e/o 5</td>
+          <td>Blu / Blu-bianco</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>🔀 Cavo rollover Cisco:</strong> i cavi console standard sono già "incrociati" (rollover).
+      Se preferisci un DB9 femmina classico: <strong>Pin 2 = RX</strong>, <strong>Pin 3 = TX</strong>, <strong>Pin 5 = GND</strong>.
+    </div>
+
+    <div class="warning">
+      <strong>⚠ Incrocio TX/RX:</strong> ricordati sempre che il TX di un dispositivo va sull'RX dell'altro.
+      Se non ricevi nulla dalla console, prova a invertire i due fili dati — è l'errore più comune.
+    </div>
+  </div>
+
+  <footer>
+    PI_ZAFF SYSTEM · WIRELESS CONSOLE SERVER<br>
+    <span>schema collegamenti v2.2</span>
+  </footer>
+
+</main>
+
+</body>
+</html>

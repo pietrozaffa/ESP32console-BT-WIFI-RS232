@@ -1,0 +1,12 @@
+# Arduino / arduino-cli build output
+build/
+*.bin
+*.elf
+*.map
+*.merged.bin
+*.partitions.bin
+*.bootloader.bin
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi_Zaff System · Collegamenti LED</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Exo+2:wght@300;600;800&display=swap');
+
+  :root{
+    --bg:#0a0e14; --card:#111620; --border:#1e2d40;
+    --accent:#00d4ff; --green:#00ff9d; --warn:#ffaa00; --red:#ff4455;
+    --white:#ffffff; --text:#c8d8e8; --dim:#5a7080;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:radial-gradient(ellipse at top, #0d1a2e 0%, var(--bg) 60%), var(--bg);
+    color:var(--text); font-family:'Exo 2',sans-serif; min-height:100vh; padding:0 0 60px; }
+
+  header{ background:linear-gradient(135deg,#060c14 0%,#0d1a2e 100%);
+    border-bottom:1px solid var(--border); padding:22px 28px 18px;
+    position:relative; overflow:hidden; }
+  header::before{ content:''; position:absolute; inset:0;
+    background:repeating-linear-gradient(90deg, transparent, transparent 60px,
+      rgba(0,212,255,.03) 60px, rgba(0,212,255,.03) 61px); }
+  .logo-row{ max-width:1100px; margin:0 auto;
+    display:flex; align-items:center; gap:14px; position:relative; }
+  .logo-icon{ width:44px; height:44px; border:2px solid var(--accent);
+    border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-size:20px; box-shadow:0 0 18px rgba(0,212,255,.35); }
+  h1{ font-size:1.4rem; font-weight:800; letter-spacing:.02em; color:#fff; line-height:1.1; }
+  h1 span{ color:var(--accent); }
+  .subtitle{ font-size:.7rem; color:var(--dim);
+    font-family:'JetBrains Mono',monospace; letter-spacing:.14em; margin-top:3px; }
+  .badge{ margin-left:auto; font-family:'JetBrains Mono',monospace;
+    font-size:.7rem; color:var(--accent); border:1px solid var(--border);
+    padding:5px 12px; border-radius:20px; }
+
+  main{ max-width:1100px; margin:0 auto; padding:24px 18px 0;
+    display:grid; gap:20px; }
+  .card{ background:var(--card); border:1px solid var(--border);
+    border-radius:14px; padding:22px 24px; position:relative; }
+  .card::before{ content:''; position:absolute; top:0; left:24px; right:24px; height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:.3; }
+  .card-title{ font-size:.7rem; font-family:'JetBrains Mono',monospace;
+    letter-spacing:.18em; color:var(--accent); text-transform:uppercase;
+    margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+  .card-title::after{ content:''; flex:1; height:1px; background:var(--border); }
+
+  /* SCHEMA SVG */
+  .schema-wrap{
+    overflow-x:auto;
+    background:
+      radial-gradient(circle at 30% 50%, rgba(0,212,255,.06), transparent 50%),
+      radial-gradient(circle at 70% 50%, rgba(0,255,157,.04), transparent 50%),
+      #07090d;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:30px 20px;
+    position:relative;
+  }
+  .schema-wrap::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px);
+    background-size:20px 20px;
+    pointer-events:none;
+    border-radius:12px;
+  }
+  svg{ display:block; margin:0 auto;
+    min-width:760px; max-width:100%;
+    height:auto; position:relative; }
+
+  /* TABELLA */
+  .pin-table{ width:100%; border-collapse:collapse;
+    font-family:'JetBrains Mono',monospace; font-size:.82rem; }
+  .pin-table th{ text-align:left; padding:10px 12px;
+    background:#0d1520; color:var(--accent); font-size:.7rem;
+    font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    border-bottom:1px solid var(--border); }
+  .pin-table td{ padding:11px 12px; border-bottom:1px solid var(--border); }
+  .pin-table tr:last-child td{ border-bottom:none; }
+  .pin-table tr:hover td{ background:rgba(0,212,255,.04); }
+  .pill{ display:inline-block; padding:3px 9px; border-radius:5px;
+    font-size:.72rem; font-weight:700; background:#0d1520;
+    border:1px solid var(--border); }
+  .pill-g{ color:#00ff9d; border-color:#00ff9d; }
+  .pill-b{ color:#00d4ff; border-color:#00d4ff; }
+  .pill-w{ color:#fff; border-color:#fff; }
+  .pill-r{ color:#ff4455; border-color:#ff4455; }
+  .pill-gnd{ color:#888; border-color:#666; }
+
+  /* LED DEMO */
+  .led-demo{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:14px;
+  }
+  .led-card{
+    background:#0d1520; border:1px solid var(--border);
+    border-radius:10px; padding:18px;
+    display:flex; align-items:center; gap:14px;
+  }
+  .led-bulb{
+    width:24px; height:24px; border-radius:50%;
+    flex-shrink:0;
+  }
+  .led-bulb.green{ background:#00ff9d;
+    box-shadow:0 0 16px #00ff9d, 0 0 30px rgba(0,255,157,.3); }
+  .led-bulb.blue{ background:#00d4ff;
+    box-shadow:0 0 16px #00d4ff, 0 0 30px rgba(0,212,255,.3); }
+  .led-bulb.white{ background:#fff;
+    box-shadow:0 0 16px #fff, 0 0 30px rgba(255,255,255,.3); }
+  .led-bulb.red{ background:#ff4455;
+    box-shadow:0 0 16px #ff4455, 0 0 30px rgba(255,68,85,.3);
+    animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity:.3; } }
+  .led-info-title{ font-weight:700; font-size:.9rem; }
+  .led-info-sub{ font-size:.72rem; color:var(--dim);
+    font-family:'JetBrains Mono',monospace; margin-top:3px; }
+
+  .info{ background:rgba(0,212,255,.04);
+    border:1px solid rgba(0,212,255,.2); border-left:4px solid var(--accent);
+    border-radius:8px; padding:14px 18px; margin-top:14px; font-size:.88rem; }
+  .info strong{ color:var(--accent); }
+  .warning{ background:linear-gradient(135deg, rgba(255,68,85,.08), rgba(255,170,0,.05));
+    border:1px solid rgba(255,68,85,.3); border-left:4px solid var(--red);
+    border-radius:8px; padding:14px 18px; margin-top:14px; font-size:.88rem; }
+  .warning strong{ color:var(--red); }
+
+  footer{ text-align:center; margin-top:30px;
+    font-family:'JetBrains Mono',monospace; font-size:.7rem;
+    color:var(--border); letter-spacing:.18em; }
+  footer span{ color:var(--accent); }
+
+  /* SVG STYLES */
+  .esp { fill:#0d1520; stroke:#00d4ff; stroke-width:1.5; }
+  .led-shape { stroke:#000; stroke-width:1.5; }
+  .resistor { fill:#f4d35e; stroke:#000; stroke-width:1; }
+  .resistor-text { font-family:'JetBrains Mono',monospace;
+    font-size:9px; font-weight:700; fill:#000; }
+  .label-text { font-family:'JetBrains Mono',monospace;
+    font-size:10px; fill:var(--text); }
+  .label-pin { font-family:'JetBrains Mono',monospace;
+    font-size:9px; font-weight:700; fill:var(--accent); }
+  .wire { fill:none; stroke-width:2.5; stroke-linecap:round; }
+  .wire-gnd { stroke:#888; }
+  .pin-dot { fill:#fff; stroke:#000; stroke-width:1; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">💡</div>
+    <div>
+      <h1><span>Pi_Zaff</span> System</h1>
+      <div class="subtitle">SCHEMA COLLEGAMENTI LED · STATUS PANEL</div>
+    </div>
+    <div class="badge">v2.4</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─── DEMO LED ─── -->
+  <div class="card">
+    <div class="card-title">i 4 led di stato</div>
+    <div class="led-demo">
+
+      <div class="led-card">
+        <div class="led-bulb green"></div>
+        <div>
+          <div class="led-info-title">VERDE · RX Seriale</div>
+          <div class="led-info-sub">GPIO25 · flash 40ms ad ogni byte ricevuto dal router</div>
+        </div>
+      </div>
+
+      <div class="led-card">
+        <div class="led-bulb blue"></div>
+        <div>
+          <div class="led-info-title">BLU · WiFi/Telnet</div>
+          <div class="led-info-sub">GPIO26 · acceso fisso quando un client Telnet è connesso</div>
+        </div>
+      </div>
+
+      <div class="led-card">
+        <div class="led-bulb white"></div>
+        <div>
+          <div class="led-info-title">BIANCO · Bluetooth</div>
+          <div class="led-info-sub">GPIO27 · acceso fisso quando un client BT è accoppiato</div>
+        </div>
+      </div>
+
+      <div class="led-card">
+        <div class="led-bulb red"></div>
+        <div>
+          <div class="led-info-title">ROSSO · Batteria</div>
+          <div class="led-info-sub">GPIO33 · lampeggia se batteria < 15% (più veloce sotto soglia)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── SCHEMA ─── -->
+  <div class="card">
+    <div class="card-title">schema cablaggio led</div>
+    <div class="schema-wrap">
+
+      <svg viewBox="0 0 780 520" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ESP32 -->
+        <g>
+          <rect x="50" y="120" width="160" height="320" rx="10" class="esp"/>
+          <text x="130" y="148" text-anchor="middle" font-family="Exo 2" font-weight="800" font-size="14" fill="#fff">ESP32</text>
+          <text x="130" y="164" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#5a7080">RUIZHI MINI 30-PIN</text>
+
+          <!-- USB-C in basso -->
+          <rect x="100" y="430" width="60" height="14" rx="2" fill="#333"/>
+          <text x="130" y="455" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#5a7080">USB-C</text>
+
+          <!-- decorazione antenna -->
+          <rect x="60" y="180" width="140" height="22" rx="2" fill="#1a2535" stroke="#333"/>
+          <text x="130" y="195" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#5a7080">WiFi + BT</text>
+
+          <!-- chip -->
+          <rect x="80" y="210" width="100" height="80" rx="4" fill="#1a2535" stroke="#333"/>
+          <text x="130" y="248" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#5a7080">ESP32-WROOM</text>
+
+          <!-- PIN DESTRA (LED) -->
+          <!-- GPIO25 -->
+          <circle cx="210" cy="220" r="4" class="pin-dot" fill="#00ff9d"/>
+          <text x="220" y="224" class="label-text">GPIO25</text>
+
+          <!-- GPIO26 -->
+          <circle cx="210" cy="260" r="4" class="pin-dot" fill="#00d4ff"/>
+          <text x="220" y="264" class="label-text">GPIO26</text>
+
+          <!-- GPIO27 -->
+          <circle cx="210" cy="300" r="4" class="pin-dot" fill="#fff"/>
+          <text x="220" y="304" class="label-text">GPIO27</text>
+
+          <!-- GPIO33 -->
+          <circle cx="210" cy="340" r="4" class="pin-dot" fill="#ff4455"/>
+          <text x="220" y="344" class="label-text">GPIO33</text>
+
+          <!-- GND -->
+          <circle cx="210" cy="400" r="4" class="pin-dot" fill="#888"/>
+          <text x="220" y="404" class="label-text">GND</text>
+        </g>
+
+        <!-- LED VERDE  RX -->
+        <g>
+          <!-- resistenza -->
+          <rect x="320" y="213" width="50" height="14" rx="2" class="resistor"/>
+          <text x="345" y="224" text-anchor="middle" class="resistor-text">330Ω</text>
+
+          <!-- LED -->
+          <circle cx="430" cy="220" r="10" fill="#00ff9d" class="led-shape"/>
+          <line x1="430" y1="210" x2="430" y2="230" stroke="#000" stroke-width="1.5"/>
+          <text x="448" y="216" class="label-text">LED VERDE</text>
+          <text x="448" y="228" font-family="JetBrains Mono" font-size="9" fill="#5a7080">3mm · RX Seriale</text>
+
+          <!-- anodo + (segnato con "+") -->
+          <text x="423" y="245" class="label-text" fill="#ff4455" font-weight="700">+</text>
+          <!-- catodo - (verso GND) -->
+          <text x="438" y="245" class="label-text" fill="#888" font-weight="700">−</text>
+        </g>
+
+        <!-- LED BLU  WiFi -->
+        <g>
+          <rect x="320" y="253" width="50" height="14" rx="2" class="resistor"/>
+          <text x="345" y="264" text-anchor="middle" class="resistor-text">330Ω</text>
+
+          <circle cx="430" cy="260" r="10" fill="#00d4ff" class="led-shape"/>
+          <line x1="430" y1="250" x2="430" y2="270" stroke="#000" stroke-width="1.5"/>
+          <text x="448" y="256" class="label-text">LED BLU</text>
+          <text x="448" y="268" font-family="JetBrains Mono" font-size="9" fill="#5a7080">3mm · WiFi/Telnet</text>
+
+          <text x="423" y="285" class="label-text" fill="#ff4455" font-weight="700">+</text>
+          <text x="438" y="285" class="label-text" fill="#888" font-weight="700">−</text>
+        </g>
+
+        <!-- LED BIANCO  BT -->
+        <g>
+          <rect x="320" y="293" width="50" height="14" rx="2" class="resistor"/>
+          <text x="345" y="304" text-anchor="middle" class="resistor-text">330Ω</text>
+
+          <circle cx="430" cy="300" r="10" fill="#fff" class="led-shape"/>
+          <line x1="430" y1="290" x2="430" y2="310" stroke="#000" stroke-width="1.5"/>
+          <text x="448" y="296" class="label-text">LED BIANCO</text>
+          <text x="448" y="308" font-family="JetBrains Mono" font-size="9" fill="#5a7080">3mm · Bluetooth</text>
+
+          <text x="423" y="325" class="label-text" fill="#ff4455" font-weight="700">+</text>
+          <text x="438" y="325" class="label-text" fill="#888" font-weight="700">−</text>
+        </g>
+
+        <!-- LED ROSSO  BATT -->
+        <g>
+          <rect x="320" y="333" width="50" height="14" rx="2" class="resistor"/>
+          <text x="345" y="344" text-anchor="middle" class="resistor-text">330Ω</text>
+
+          <circle cx="430" cy="340" r="10" fill="#ff4455" class="led-shape"/>
+          <line x1="430" y1="330" x2="430" y2="350" stroke="#000" stroke-width="1.5"/>
+          <text x="448" y="336" class="label-text">LED ROSSO</text>
+          <text x="448" y="348" font-family="JetBrains Mono" font-size="9" fill="#5a7080">3mm · Batteria Low</text>
+
+          <text x="423" y="365" class="label-text" fill="#ff4455" font-weight="700">+</text>
+          <text x="438" y="365" class="label-text" fill="#888" font-weight="700">−</text>
+        </g>
+
+        <!-- ─── FILI dai GPIO alle resistenze ─── -->
+
+        <line x1="214" y1="220" x2="320" y2="220" class="wire" stroke="#00ff9d"/>
+        <line x1="214" y1="260" x2="320" y2="260" class="wire" stroke="#00d4ff"/>
+        <line x1="214" y1="300" x2="320" y2="300" class="wire" stroke="#fff"/>
+        <line x1="214" y1="340" x2="320" y2="340" class="wire" stroke="#ff4455"/>
+
+        <!-- dalle resistenze ai LED (anodo) -->
+        <line x1="370" y1="220" x2="420" y2="220" class="wire" stroke="#00ff9d"/>
+        <line x1="370" y1="260" x2="420" y2="260" class="wire" stroke="#00d4ff"/>
+        <line x1="370" y1="300" x2="420" y2="300" class="wire" stroke="#fff"/>
+        <line x1="370" y1="340" x2="420" y2="340" class="wire" stroke="#ff4455"/>
+
+        <!-- catodi LED -> bus GND comune (linea verticale a destra) -->
+        <line x1="440" y1="220" x2="600" y2="220" class="wire wire-gnd"/>
+        <line x1="440" y1="260" x2="600" y2="260" class="wire wire-gnd"/>
+        <line x1="440" y1="300" x2="600" y2="300" class="wire wire-gnd"/>
+        <line x1="440" y1="340" x2="600" y2="340" class="wire wire-gnd"/>
+
+        <!-- linea verticale GND -->
+        <line x1="600" y1="215" x2="600" y2="405" class="wire wire-gnd"/>
+
+        <!-- GND -> ESP32 GND (lungo basso) -->
+        <line x1="600" y1="400" x2="214" y2="400" class="wire wire-gnd"/>
+
+        <!-- nodo gnd visibile -->
+        <circle cx="600" cy="400" r="4" fill="#888"/>
+
+        <!-- etichetta GND bus -->
+        <text x="610" y="320" class="label-text" fill="#888" font-weight="700">GND BUS</text>
+
+        <!-- ────────── TITOLI ────────── -->
+        <text x="50" y="50" font-family="Exo 2" font-weight="800" font-size="18" fill="#00d4ff">
+          Schema cablaggio · 4× LED 3mm
+        </text>
+        <text x="50" y="72" font-family="JetBrains Mono" font-size="10" fill="#5a7080" letter-spacing="2">
+          OGNI LED USA UNA RESISTENZA DA 330Ω IN SERIE · CATODO A GND COMUNE
+        </text>
+
+        <!-- nota anodo/catodo -->
+        <g transform="translate(50,470)">
+          <text font-family="JetBrains Mono" font-size="10" fill="#c8d8e8" font-weight="700">Come riconoscere anodo (+) e catodo (−) di un LED:</text>
+          <text y="14" font-family="JetBrains Mono" font-size="9" fill="#5a7080">• Anodo (+) = piedino più LUNGO  →  va alla resistenza/GPIO</text>
+          <text y="28" font-family="JetBrains Mono" font-size="9" fill="#5a7080">• Catodo (−) = piedino più CORTO, lato piatto del LED  →  va a GND</text>
+        </g>
+
+      </svg>
+
+    </div>
+
+    <div class="info">
+      <strong>📌 GND comune:</strong> tutti i catodi (−) dei 4 LED vanno collegati insieme allo stesso GND dell'ESP32.
+      Conviene crearsi una piccola "barra GND" saldando un filo che passa per tutti i 4 catodi.
+    </div>
+
+    <div class="warning">
+      <strong>⚠ Polarità LED:</strong> se inverti anodo e catodo il LED non si accende (e non si rompe, ma non funziona).
+      Ricordati: <strong>piedino lungo = +</strong>, piedino corto/lato piatto = −.
+    </div>
+  </div>
+
+  <!-- ─── TABELLA ─── -->
+  <div class="card">
+    <div class="card-title">tabella collegamenti led</div>
+    <table class="pin-table">
+      <thead>
+        <tr>
+          <th>LED</th>
+          <th>Colore</th>
+          <th>GPIO ESP32</th>
+          <th>Resistenza</th>
+          <th>Catodo (−)</th>
+          <th>Funzione</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pill pill-g">RX</span></td>
+          <td>Verde</td>
+          <td>GPIO25</td>
+          <td>330Ω in serie</td>
+          <td>GND comune</td>
+          <td>Flash 40ms su byte ricevuto da seriale</td>
+        </tr>
+        <tr>
+          <td><span class="pill pill-b">WiFi</span></td>
+          <td>Blu</td>
+          <td>GPIO26</td>
+          <td>330Ω in serie</td>
+          <td>GND comune</td>
+          <td>Acceso = client Telnet connesso</td>
+        </tr>
+        <tr>
+          <td><span class="pill pill-w">BT</span></td>
+          <td>Bianco</td>
+          <td>GPIO27</td>
+          <td>330Ω in serie</td>
+          <td>GND comune</td>
+          <td>Acceso = client Bluetooth connesso</td>
+        </tr>
+        <tr>
+          <td><span class="pill pill-r">Batt</span></td>
+          <td>Rosso</td>
+          <td>GPIO33</td>
+          <td>330Ω in serie</td>
+          <td>GND comune</td>
+          <td>Lampeggia se batteria sotto le soglie</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>💡 Pattern lampeggio batteria:</strong><br>
+      • Sotto <strong>15%</strong> → lampeggio lento (0.8s on / 0.8s off) — avviso<br>
+      • Sotto <strong>10%</strong> → lampeggio medio (0.4s) — attenzione<br>
+      • Sotto <strong>5%</strong> → lampeggio rapido (0.12s) — emergenza
+    </div>
+  </div>
+
+  <!-- ─── MATERIALE ─── -->
+  <div class="card">
+    <div class="card-title">lista componenti da aggiungere</div>
+    <table class="pin-table">
+      <thead>
+        <tr><th>Componente</th><th>Quantità</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>LED 3mm verde</td><td>1</td><td>~3V Vf, 20mA tipico</td></tr>
+        <tr><td>LED 3mm blu</td><td>1</td><td>~3.2V Vf</td></tr>
+        <tr><td>LED 3mm bianco</td><td>1</td><td>~3.2V Vf</td></tr>
+        <tr><td>LED 3mm rosso</td><td>1</td><td>~2V Vf (più luminoso)</td></tr>
+        <tr><td>Resistenze 330Ω 1/4W</td><td>4</td><td>Strisce: arancione-arancione-marrone</td></tr>
+        <tr><td>Filo sottile colorato</td><td>~30cm</td><td>Per collegamenti corti, AWG 26-28</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>💰 Costo totale aggiuntivo:</strong> meno di 1€. Un kit di LED 3mm da 100pz costa 3-4€ su Amazon.<br>
+      Le resistenze da 330Ω le trovi in qualsiasi assortimento DIP standard.
+    </div>
+  </div>
+
+  <!-- ─── PATTERN ─── -->
+  <div class="card">
+    <div class="card-title">cosa vedrai durante l'uso</div>
+
+    <table class="pin-table">
+      <thead>
+        <tr><th>Situazione</th><th>LED accesi</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Boot iniziale</td>
+          <td>Sequenza animata di tutti i 4 LED (accensione/spegnimento progressivo)</td>
+        </tr>
+        <tr>
+          <td>Idle, batteria carica, nessuno connesso</td>
+          <td>Tutti spenti</td>
+        </tr>
+        <tr>
+          <td>Client Telnet connesso, console attiva</td>
+          <td><span class="pill pill-b">BLU fisso</span> + <span class="pill pill-g">VERDE lampeggia</span> ad ogni messaggio dal router</td>
+        </tr>
+        <tr>
+          <td>Bluetooth accoppiato da Windows, COM virtuale aperta</td>
+          <td><span class="pill pill-w">BIANCO fisso</span> + <span class="pill pill-g">VERDE lampeggia</span></td>
+        </tr>
+        <tr>
+          <td>Doppia connessione: Telnet + BT contemporaneamente</td>
+          <td><span class="pill pill-b">BLU</span> + <span class="pill pill-w">BIANCO</span> + <span class="pill pill-g">VERDE</span></td>
+        </tr>
+        <tr>
+          <td>Batteria scende sotto 15%</td>
+          <td><span class="pill pill-r">ROSSO lento</span> (lampeggia ogni 0.8s)</td>
+        </tr>
+        <tr>
+          <td>Batteria critica sotto 5%</td>
+          <td><span class="pill pill-r">ROSSO rapido</span> + warning su tutte le console</td>
+        </tr>
+        <tr>
+          <td>Deep sleep (batteria esaurita 3.15V)</td>
+          <td>Tutti spenti</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    PI_ZAFF SYSTEM · LED STATUS PANEL<br>
+    <span>schema cablaggio v2.4</span>
+  </footer>
+
+</main>
+
+</body>
+</html>
