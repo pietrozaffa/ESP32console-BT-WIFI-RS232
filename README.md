@@ -21,7 +21,6 @@ sempre acceso attaccato all'apparato per leggerne la console.
 |---|---|
 | `Pi_Zaff_v5_0_STABLE/` | Firmware **corrente** (banner interno: v6.0) — Telnet + GUI web + terminale WebSocket + storico connessioni + mDNS + OTA |
 | `Pi_Zaff_v5_0_ROLLBACK/` | Firmware **v5.0**, versione di ripiego: stesso hardware e pinout, ma senza terminale WebSocket / storico / mDNS. Da usare solo se la v6.0 dà problemi |
-| `genera_codice.py` | Generatore codici di attivazione per l'app companion Android (vedi in fondo) |
 | `PiZaff_Schema_Collegamenti.html` | Schema dei collegamenti (apri nel browser) |
 | `PiZaff_Schema_LED.html` | Legenda dei 4 LED |
 | `PiZaff_Case.scad` / `ESPCLI.3mf` | Case per stampa 3D (OpenSCAD + progetto slicer) |
@@ -191,16 +190,12 @@ default (`ConsoleESP32` / `12345678`, baud 9600, telnet `console`, MODE_WIFI).
 
 ---
 
-## `genera_codice.py` — licenze app companion
+## Licenza
 
-Script lato "fornitore" per generare i **codici di attivazione** dell'app
-Android companion (*Pi_Zaff Router Console*). Prende il **Device ID** mostrato
-dall'app e restituisce un codice `XXXX-XXXX-XXXX` (HMAC-SHA256 troncato) valido
-**solo** per quel Device ID.
+Copyright (C) 2025 Pietro Zaffarano.
 
-```bash
-python genera_codice.py
-```
-
-La costante `SECRET` deve restare identica a quella in `LicenseManager.kt`
-dell'app. Non riguarda il funzionamento del firmware ESP32.
+Questo progetto è distribuito con licenza **GNU GPL v3.0**: puoi usarlo,
+studiarlo, modificarlo e ridistribuirlo, ma ogni derivato che distribuisci
+deve restare open source con la stessa licenza — non può essere chiuso in un
+prodotto proprietario né essere fatto passare per opera di qualcun altro.
+Testo completo in [LICENSE](LICENSE).
