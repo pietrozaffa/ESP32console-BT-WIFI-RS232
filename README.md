@@ -23,7 +23,7 @@ sempre acceso attaccato all'apparato per leggerne la console.
 | `Pi_Zaff_v5_0_ROLLBACK/` | Firmware **v5.0**, versione di ripiego: stesso hardware e pinout, ma senza terminale WebSocket / storico / mDNS. Da usare solo se la v6.0 dà problemi |
 | `PiZaff_Schema_Collegamenti.html` | Schema dei collegamenti (apri nel browser) |
 | `PiZaff_Schema_LED.html` | Legenda dei 4 LED |
-| `PiZaff_Case.scad` / `ESPCLI.3mf` | Case per stampa 3D (OpenSCAD + progetto slicer) |
+| `ESPCLI.3mf` | Case per stampa 3D (progetto slicer) |
 
 ---
 
