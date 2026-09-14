@@ -192,7 +192,7 @@ default (`ConsoleESP32` / `12345678`, baud 9600, telnet `console`, MODE_WIFI).
 
 ## Licenza
 
-Copyright (C) 2025 Pietro Zaffarano.
+Copyright (C) 2026 Pietro Zaffarano.
 
 Questo progetto è distribuito con licenza **GNU GPL v3.0**: puoi usarlo,
 studiarlo, modificarlo e ridistribuirlo, ma ogni derivato che distribuisci
